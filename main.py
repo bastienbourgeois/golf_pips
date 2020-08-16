@@ -111,12 +111,14 @@ stream = driver.find_element_by_tag_name('iframe')
 if (stream != None):
     driver.switch_to.frame(stream)
 
+sleep(0.5)
+
 del_all_tag('script')
 del_all_tag('iframe')
 del_all_tag('object')
 del_id('wrapfabtest')
 
-sleep(1)
+sleep(1.5)
 
 for i in range(3):
     webdriver.ActionChains(driver).click().perform()
