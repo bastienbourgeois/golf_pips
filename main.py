@@ -4,14 +4,18 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from colorama import init
+from os import system
 
+#system('mode con: lines=38')
 init()
 
-CHANNEL_URL = 'http://channelstream.club/'
 NB_MORE_CHANNEL = 8
 
-r = requests.get(url=CHANNEL_URL)
-soup = BeautifulSoup(r.content, 'lxml').find_all('div')
+CHANNEL_URL = 'http://channelstream.club/'
+ST_URL = []
+ST_URL.append("https://cricfree.sc/football-live-stream-5")
+ST_URL.append("https://cricfree.sc/rugby-live-stream")
+ST_URL.append("https://cricfree.sc/golf-live-streaming-")
 
 class col:
     HEADER = '\033[95m'
@@ -27,8 +31,19 @@ dic = {
     "RMC 1": "https://channelstream.club/stream/rmc_sport-1.php",
     "Canal+": "https://channelstream.club/stream/canal.php",
     "Canal+ Sport": "https://channelstream.club/stream/canal_sport.php",
-    "beIN 1": "https://channelstream.club/stream/bein_1.php"
+    "beIN 1": "https://channelstream.club/stream/bein_1.php",
+    "Multisports1": "https://channelstream.club/stream/multisport_1.php"
 }
+
+print(col.WARNING + "------ TV Pip's ------" + col.ENDC)
+print(col.HEADER + "*** Favoris ***" + col.ENDC)
+
+r = requests.get(url=CHANNEL_URL)
+while r.status_code != 200:
+    print("ChannelStream ne réponds pas, 5 secondes avant nouvelle essaie")
+    sleep(5)
+    r = requests.get(url=CHANNEL_URL)
+soup = BeautifulSoup(r.content, 'lxml').find_all('div')
 
 def text_prog(h):
     i = ""
@@ -40,7 +55,7 @@ def text_prog(h):
     s = h.text + " -> " + i
     return s
 
-def print_prog():
+def print_prog(d):
     s = col.WARNING + "\t-sans programme-" + col.ENDC
     for j in range(len(soup)):
         if soup[j].find_all('input')[1].get('value') == d:
@@ -48,12 +63,9 @@ def print_prog():
             return col.OKGREEN + "\t" + s + col.ENDC
     return s
 
-print(col.WARNING + "------ TV Pip's ------" + col.ENDC)
-print(col.HEADER + "*** Favoris ***" + col.ENDC)
-
 for i, d in enumerate(dic.values()):
     print(str(i + 1) + "- " + list(dic.keys())[i], end='')
-    print(print_prog())
+    print(print_prog(d))
     i = i + 1
 
 print(col.HEADER + "\n*** En ce moment ***" + col.ENDC)
@@ -65,18 +77,55 @@ for i in range(NB_MORE_CHANNEL):
 
 ## ALLEMAGNE
 print(col.HEADER + "\n*** Chaines Etrangères ***" + col.ENDC)
-NB_UK_CHANNEL = 4
+NB_UK_CHANNEL = len(dic)
 
-dic.update( {"Sky Sport 1": "https://channelstream.club/stream/uk_skysport_1.php"} )
+dic.update( {"Sky Sport 1   ": "https://channelstream.club/stream/uk_skysport_1.php"} )
 dic.update( {"Sky Sport Foot": "https://channelstream.club/stream/uk_skysport_football.php"} )
 dic.update( {"Sky Sport Golf": "https://sportscart.xyz/ch/scplayer-70.php"} )
 dic.update( {"Sky Sport Arena":"https://channelstream.club/stream/uk_skysport_arena.php"} )
-dic.update( {"BT Sport 1": "https://channelstream.club/stream/uk_btsport_1.php"} )
+dic.update( {"Sky Sport Action":"https://channelstream.club/stream/uk_skysport_action.php"} )
+dic.update( {"BT Sport 1    ": "https://channelstream.club/stream/uk_btsport_1.php"} )
+
+NB_UK_CHANNEL = len(dic) - NB_UK_CHANNEL
 
 for i in range(len(dic) - NB_UK_CHANNEL, len(dic)):
-    print(str(i + 1) + "- " + list(dic.keys())[i], end='')
-    print(print_prog())
+    print(str(i + 1) + "- " + list(dic.keys())[i])#, end='')
+    #print(print_prog(list(dic.keys())[i]))
 
+### PROG ETRANGER 
+print(col.HEADER + "\n*** En ce moment sur les chaines etrangères ***" + col.ENDC)
+
+for i in range(len(ST_URL)):
+    st = requests.get(url=ST_URL[i])
+    if st.status_code == 200:
+        st_soup = BeautifulSoup(st.content, 'lxml').find("tbody").find_all("tr")#_all(attrs={"class": "watchbutton"})
+        if i == 0:
+            print(col.HEADER + "Foot:" + col.ENDC)
+        elif i == 1:
+            print(col.HEADER + "Rugby:" + col.ENDC)
+        else:
+            print(col.HEADER + "Golf:" + col.ENDC)
+        if len(st_soup) > 0:
+            for j in st_soup:
+                date = j.find(attrs={"class": "event-date"}).text
+                date = date.replace("\n", "")
+                event = j.find(attrs={"class": "event-title"})
+                name = event.find(attrs={"class": "title"}).text
+                league = event.find(attrs={"class": "leaguetitle"}).text
+                print(col.OKGREEN + date + " | " + name + " -> " + league.split("|")[0] + col.ENDC)
+        else:
+            print(col.WARNING + "  -sans programme-" + col.ENDC)
+            """
+                s = j['onclick'].split("'")[1]
+                i = j['onclick'].split(",")[1][:-1]
+                payload = { "scheduleid":i }
+                p = requests.post(s, data=payload)
+                p_soup = BeautifulSoup(p.content, 'lxml').find(attrs={"class": "watch-section"})
+            """
+    else:
+        print("Site : " + ST_URL[i] + " inaccecible")
+
+###
 
 print(col.OKBLUE + "\nRentre un nombre, puis fais entrer: ", end='' + col.ENDC)
 
@@ -152,10 +201,11 @@ sleep(0.5)
 
 for i in range(3):
     webdriver.ActionChains(driver).click().perform()
-    for j in range(len(driver.window_handles)):
-        if j > 0:
-            driver.switch_to.window(driver.window_handles[j])
-            sleep(0.5)
-            driver.close()
-            sleep(0.5)
-            driver.switch_to.window(main_window)
+    driver.switch_to.window(main_window)
+    sleep(0.5)
+
+for j in range(len(driver.window_handles) - 1, 0, -1):
+    driver.switch_to.window(driver.window_handles[j])
+    driver.close()
+    sleep(0.5)
+driver.switch_to.window(main_window)
