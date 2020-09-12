@@ -6,11 +6,10 @@ from bs4 import BeautifulSoup
 from colorama import init
 from os import system
 
-#system('mode con: lines=38')
+system('mode con: lines=34 cols=120')
 init()
 
 NB_MORE_CHANNEL = 7
-
 CHANNEL_URL = 'http://channelstream.club/'
 ST_URL = []
 ST_URL.append("https://cricfree.sc/football-live-stream-5")
@@ -75,7 +74,8 @@ for i in range(NB_MORE_CHANNEL):
     dic.update( {url.rsplit('/', 1)[-1]: url} )
     print(str(len(dic)) + "-" + col.OKGREEN + text_prog(soup[i].find('h4')) + col.ENDC)
 
-## ALLEMAGNE
+## ETRANGER
+
 print(col.HEADER + "\n*** Chaines Etrangères ***" + col.ENDC)
 NB_UK_CHANNEL = len(dic)
 
@@ -94,57 +94,6 @@ NB_UK_CHANNEL = len(dic) - NB_UK_CHANNEL
 for i in range(len(dic) - NB_UK_CHANNEL, len(dic)):
     print(str(i + 1) + "- " + list(dic.keys())[i], end='')
     print(print_prog(list(dic.values())[i]))
-
-### PROG ETRANGER 
-"""
-print(col.HEADER + "\n*** Programme sur les chaines etrangères ***" + col.ENDC)
-
-for i in range(len(ST_URL)):
-    st = requests.get(url=ST_URL[i])
-    if st.status_code == 200:
-        st_soup = BeautifulSoup(st.content, 'lxml').find("tbody").find_all("tr")#_all(attrs={"class": "watchbutton"})
-        if i == 0:
-            print(col.HEADER + "Foot:" + col.ENDC)
-        elif i == 1:
-            print(col.HEADER + "Rugby:" + col.ENDC)
-        else:
-            print(col.HEADER + "Golf:" + col.ENDC)
-        if len(st_soup) > 0:
-            for j in st_soup:
-                date = j.find(attrs={"class": "event-date"}).text
-                date = date.replace("\n", "")
-                event = j.find(attrs={"class": "event-title"})
-                name = event.find(attrs={"class": "title"}).text
-                league = event.find(attrs={"class": "leaguetitle"}).text
-                print(col.OKGREEN + date + " | " + name + " -> " + league.split("|")[0] + col.ENDC, end='')
-
-                watch = j.find(attrs={"class": "watchbutton"})
-                s = watch['onclick'].split("'")[1]
-                i = watch['onclick'].split(",")[1][:-1]
-                payload = { "scheduleid":i }
-                p = requests.post(s, data=payload)
-                p_soup = BeautifulSoup(p.content, 'lxml').find_all(attrs={"class": "watch-chlogo-area"})
-                k = 1
-                if len(p_soup) < 1:
-                    print(col.WARNING + "chaîne disponnible 30min avant le début de l'évènement" + col.ENDC)
-                elif (len(p_soup) == 1 and p_soup[0].text.replace("\n", "") == "Backup Channels"):
-                    print(col.WARNING + "chaîne disponnible 30min avant le début de l'évènement" + col.ENDC, end='')
-                else:
-                    print(col.HEADER + " présent sur la chaîne ->> " + col.ENDC, end='')
-                for chan in p_soup:
-                    sc = chan.text.replace("\n", "")
-                    if len(p_soup) > k and sc != "Backup Channels":
-                        print(sc + ", ", end='')
-                    elif sc != "Backup Channels":
-                        print(sc)
-                    else:
-                        print()
-                    k = k + 1
-        else:
-            print(col.WARNING + "  -sans programme-" + col.ENDC)
-    else:
-        print("Site : " + ST_URL[i] + " inaccecible")
-"""
 
 print(col.OKBLUE + "\nRentre un nombre, puis fais entrer: ", end='' + col.ENDC)
 
@@ -172,10 +121,6 @@ def del_script():
     js_string = "var element = document.querySelectorAll('script');for(var i=0; i<element.length; i++){ if(i!=1){element[i].remove();}}"
     driver.execute_script(js_string)
 
-def del_iframe():
-    js_string = "var element = document.querySelectorAll('iframe');for(var i=0; i<element.length; i++){ if(i!=1){element[i].remove();}}"
-    driver.execute_script(js_string)
-
 def del_all_tag(tag):
     js_string = "var element = document.querySelectorAll('" + tag + "');for(var i=0; i<element.length; i++){if(element!=null){element[i].remove();}}"
     driver.execute_script(js_string)
@@ -197,27 +142,16 @@ driver = webdriver.Chrome(options = options, executable_path = 'driver/chromedri
 driver.get(URL)
 main_window = driver.current_window_handle
 
-sleep(14)
+sleep(14) #Attendre que la vidéo se lance
 
 del_script()
 del_all_tag('noscript')
-#del_all_tag('style')
 del_id('html3')
-
-"""
-stream = driver.find_element_by_tag_name('iframe')
-if (stream != None):
-    driver.switch_to.frame(stream)
-
-sleep(0.5)
-
-del_all_tag('script')
-#del_all_tag('iframe')
-del_all_tag('object')"""
 del_id('wrapfabtest')
+
 sleep(0.5)
 
-for i in range(3):
+for i in range(4): #Cliquer tant que la vidéo n'a pas de son
     webdriver.ActionChains(driver).click().perform()
     for j in range(len(driver.window_handles) - 1, 0, -1):
         driver.switch_to.window(driver.window_handles[j])
