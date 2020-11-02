@@ -125,6 +125,10 @@ def del_all_tag(tag):
     js_string = "var element = document.querySelectorAll('" + tag + "');for(var i=0; i<element.length; i++){if(element!=null){element[i].remove();}}"
     driver.execute_script(js_string)
 
+def del_new_ad():
+    js_string = "var element = document.querySelectorAll('iframe');if(element!=null){element[element.length - 1].remove();}"
+    driver.execute_script(js_string)
+
 def del_xpath(x):
     js_string = "result = str.replace(/(<p[^>]+?>|<p>|<\\/p>)/img, \"\");"
     driver.execute_script(js_string)
@@ -144,10 +148,20 @@ main_window = driver.current_window_handle
 
 sleep(14) #Attendre que la vidéo se lance
 
-del_script()
-del_all_tag('noscript')
-del_id('html3')
-del_id('wrapfabtest')
+#del_script() #Adblock trouvé ?
+#del_all_tag('noscript')
+try:
+    del_id('html3')
+except:
+    print(col.FAIL + "Impossible d'enlever html3" + col.ENDC)
+try:
+    del_id('wrapfabtest')
+except:
+    print(col.FAIL + "Impossible d'enlever la pub du milieu" + col.ENDC)
+try:
+    del_new_ad()
+except:
+    print(col.FAIL + "Impossible d'enlever la popup en haut" + col.ENDC)
 
 sleep(0.5)
 
