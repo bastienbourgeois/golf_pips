@@ -43,7 +43,7 @@ for i, d in enumerate(dic.values()):
 ## ------- EN CE MOMENT -----------
 
 print(Col.HEADER + "\n*** En ce moment ***" + Col.ENDC)
-if r.status_code == 200:
+if r.status_code == 200 and soup:
     for i in range(NB_MORE_CHANNEL):
         url = soup[i].find_all('input')[1].get('value')
         dic.update( {url.rsplit('/', 1)[-1]: url} )
