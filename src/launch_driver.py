@@ -1,7 +1,7 @@
 from time import sleep
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-from src.color import Col
+from src.function_prog import Col
 
 
 def del_id(driver, idd):

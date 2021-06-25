@@ -2,8 +2,8 @@ import requests
 from os import system
 from bs4 import BeautifulSoup
 from colorama import init
-from src.color import Col
 from src.launch_driver import LaunchDriver
+from src.function_prog import Col
 from src.function_prog import print_prog
 from src.function_prog import text_prog
 from src.function_prog import while_valid_number
